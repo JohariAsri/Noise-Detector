@@ -1,0 +1,61 @@
+#define BINSIZE 5 
+//declare binsize
+
+#define DETTHRESH 500 
+//declare dettresh
+
+long a; // instantaneous sample
+long arr[BINSIZE]; // averaging bin
+long avg; // calculated average
+int i; // averaging bin index
+int n; // for loop general purpose
+int det; // detection 
+
+void setup()
+{
+  Serial.begin(9600); //begin
+  pinMode(6, OUTPUT);
+  digitalWrite(6, LOW);
+  // poulate the averaging bin with the current value
+  a = analogRead(0);
+  for (n=0; n<BINSIZE; n++) {
+    arr[n] = a;
+  }
+  i=0;
+  det = 0;
+}
+
+void loop() //looping
+{
+  
+  a = analogRead(0); 
+  
+  if (a != 0) { 
+    arr[i] = a;
+    if (i > (BINSIZE-1)) { 
+      i = 0; //return
+    } else {
+      i++;
+    }
+  
+  
+    // average the values across the bin
+    avg = arr[0];
+    for (n=1; n<BINSIZE; n++) { 
+      avg = avg + arr[n];
+    }
+    avg = avg / BINSIZE; // average value
+
+    //when noise
+    if (det == 0) { 
+      if (avg >= DETTHRESH) {
+        det = 1;
+        digitalWrite(6, HIGH); // LED turn on
+      } //when quite
+    } else if (avg < DETTHRESH) {
+      det=0;
+      digitalWrite(6, LOW); // LED turn off
+    }
+   
+  }
+ }
